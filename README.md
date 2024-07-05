@@ -70,14 +70,14 @@ Remember to close all running servers before starting the backend server , close
 
 5. Get User by ID
 
-        Endpoint: GET /api/users/{_id}
+        Endpoint: GET /api/users/:id
         Description: This endpoint retrieves details of a specific user by their user ID. Requires a valid Bearer Token for authorization. Only an admin user and primary user can get a user by their ids
         Authorization: Bearer Token: <token>
 
 
 6. Update User Details or Role
 
-        Endpoint: PUT /api/users/{_id}
+        Endpoint: PUT /api/users/:id
         Description: This endpoint allows updating details or the role of a specific user by their user ID. Requires a valid Bearer Token for authorization. Only an admin user and primary user can update the details
         Example of Request Body in json:
         {
@@ -89,7 +89,7 @@ Remember to close all running servers before starting the backend server , close
 
 7. Delete a User
 
-        Endpoint: DELETE /api/users/{_id}
+        Endpoint: DELETE /api/users/:id
         Description: This endpoint allows deleting a specific user by their user ID. Requires a valid Bearer Token for authorization. Only an admin user can delete a user
         Authorization: Bearer Token: <token>
 
