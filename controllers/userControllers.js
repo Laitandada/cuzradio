@@ -1,5 +1,7 @@
+import { filterSensitiveFields } from '../middleware/auth.js';
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 // Create User
 export const createUser = async (req, res) => {
@@ -23,7 +25,18 @@ export const createUser = async (req, res) => {
 
     await user.save();
 
-    res.status(201).json({ msg: 'User created successfully', user });
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role
+      }
+    };
+    const filteredUser = filterSensitiveFields(user, ['password']);
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+      if (err) throw err;
+   
+      res.json({ msg: 'User created successfully',user: filteredUser, token });
+    });
   } catch (err) {
     console.error(err.message);
        res.status(500).send(`${err.message}`);
@@ -34,7 +47,8 @@ export const createUser = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find();
-    res.json(users);
+    const filteredUsers = users.map(user => filterSensitiveFields(user, ['password']));
+    res.json(filteredUsers);
   } catch (err) {
     console.error(err.message);
        res.status(500).send(`${err.message}`);
@@ -48,7 +62,8 @@ export const getUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
-    res.json(user);
+    const filteredUser = filterSensitiveFields(user, ['password']);
+    res.json(filteredUser);
   } catch (err) {
     console.error(err.message);
        res.status(500).send(`${err.message}`);
@@ -70,7 +85,8 @@ export const updateUser = async (req, res) => {
     user.role = role || user.role;
 
     await user.save();
-    res.json(user);
+    const filteredUser = filterSensitiveFields(user, ['password']);
+    res.json({ msg: 'Updated user successfully',user: filteredUser });
   } catch (err) {
     console.error(err.message);
        res.status(500).send(`${err.message}`);
@@ -87,7 +103,7 @@ export const deleteUser = async (req, res) => {
 
 
     await user.deleteOne();
-    res.json({ msg: 'User removed' });
+    res.json({ msg: 'User removed successfully' });
   } catch (err) {
     console.error(err.message);
        res.status(500).send(`${err.message}`);

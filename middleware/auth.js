@@ -6,7 +6,7 @@ const auth = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ msg: 'No header in place' });
+    return res.status(401).json({ msg: 'add an authorized user token to the bearer token' });
   }
   const token = authHeader.replace("Bearer ", "");
 

@@ -37,7 +37,7 @@ export const register = async (req, res) => {
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
       if (err) throw err;
    
-      res.json({ user: filteredUser, token });
+      res.json({ msg: 'User created successfully',user: filteredUser, token });
     });
   } catch (err) {
     console.error(err.message);
@@ -70,7 +70,7 @@ export const login = async (req, res) => {
    
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
       if (err) throw err;
-      res.json({ user: filteredUser, token });
+      res.json({msg: 'Login successfully',user: filteredUser, token });
     });
   } catch (err) {
     console.error(err.message);
