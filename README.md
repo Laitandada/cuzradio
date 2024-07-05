@@ -96,8 +96,4 @@ Remember to close all running servers before starting the backend server , close
 
 ==============LOGIN DETAILS FOR ADMIN USER =============================
 
-{
- "email": "email@gmail.com",
-"password": "Password@123"
-
-}
+Manually change a user role of your choice in the database to admin
