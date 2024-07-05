@@ -31,6 +31,7 @@ const checkRole = (roles) => (req, res, next) => {
   next();
 };
 
+// Function to remove password from user response
 const filterSensitiveFields = (doc, sensitiveFields = []) => {
   const obj = doc.toObject();
   sensitiveFields.forEach(field => {

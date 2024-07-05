@@ -1,23 +1,23 @@
-import { filterSensitiveFields } from '../middleware/auth.js';
-import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { filterSensitiveFields } from "../middleware/auth.js";
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-// Create User
+// Create user by admin
 export const createUser = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ msg: 'User already exists' });
+      return res.status(400).json({ msg: "User already exists" });
     }
 
     user = new User({
       name,
       email,
       password,
-      role
+      role,
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -28,18 +28,29 @@ export const createUser = async (req, res) => {
     const payload = {
       user: {
         id: user.id,
-        role: user.role
-      }
+        role: user.role,
+      },
     };
-    const filteredUser = filterSensitiveFields(user, ['password']);
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
-      if (err) throw err;
-   
-      res.json({ msg: 'User created successfully',user: filteredUser, token });
-    });
+
+    // remove user password from object
+    const filteredUser = filterSensitiveFields(user, ["password"]);
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" },
+      (err, token) => {
+        if (err) throw err;
+
+        res.json({
+          msg: "User created successfully",
+          user: filteredUser,
+          token,
+        });
+      }
+    );
   } catch (err) {
     console.error(err.message);
-       res.status(500).send(`${err.message}`);
+    res.status(500).send(`${err.message}`);
   }
 };
 
@@ -47,11 +58,15 @@ export const createUser = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find();
-    const filteredUsers = users.map(user => filterSensitiveFields(user, ['password']));
+
+        // remove user password from array of users object
+    const filteredUsers = users.map((user) =>
+      filterSensitiveFields(user, ["password"])
+    );
     res.json(filteredUsers);
   } catch (err) {
     console.error(err.message);
-       res.status(500).send(`${err.message}`);
+    res.status(500).send(`${err.message}`);
   }
 };
 
@@ -60,24 +75,26 @@ export const getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
+      return res.status(404).json({ msg: "User not found" });
     }
-    const filteredUser = filterSensitiveFields(user, ['password']);
+
+        // remove user password from object
+    const filteredUser = filterSensitiveFields(user, ["password"]);
     res.json(filteredUser);
   } catch (err) {
     console.error(err.message);
-       res.status(500).send(`${err.message}`);
+    res.status(500).send(`${err.message}`);
   }
 };
 
-// Update User
+// Update user by id
 export const updateUser = async (req, res) => {
   const { name, email, role } = req.body;
 
   try {
     let user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
+      return res.status(404).json({ msg: "User not found" });
     }
 
     user.name = name || user.name;
@@ -85,27 +102,28 @@ export const updateUser = async (req, res) => {
     user.role = role || user.role;
 
     await user.save();
-    const filteredUser = filterSensitiveFields(user, ['password']);
-    res.json({ msg: 'Updated user successfully',user: filteredUser });
+
+        // remove user password from object
+    const filteredUser = filterSensitiveFields(user, ["password"]);
+    res.json({ msg: "Updated user successfully", user: filteredUser });
   } catch (err) {
     console.error(err.message);
-       res.status(500).send(`${err.message}`);
+    res.status(500).send(`${err.message}`);
   }
 };
 
-// Delete User
+// Delete user by id
 export const deleteUser = async (req, res) => {
   try {
     let user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
+      return res.status(404).json({ msg: "User not found" });
     }
 
-
     await user.deleteOne();
-    res.json({ msg: 'User removed successfully' });
+    res.json({ msg: "User removed successfully" });
   } catch (err) {
     console.error(err.message);
-       res.status(500).send(`${err.message}`);
+    res.status(500).send(`${err.message}`);
   }
 };

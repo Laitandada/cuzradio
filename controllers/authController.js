@@ -6,6 +6,7 @@ import { filterSensitiveFields } from '../middleware/auth.js';
 
 dotenv.config();
 
+// Sign up
 export const register = async (req, res) => {
   const { name, email, password, role } = req.body;
 
@@ -21,7 +22,7 @@ export const register = async (req, res) => {
       password,
       role
     });
-
+    // hash the user password
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
@@ -33,7 +34,11 @@ export const register = async (req, res) => {
         role: user.role
       }
     };
+
+        // remove user password from object
     const filteredUser = filterSensitiveFields(user, ['password']);
+
+    // create a token for user
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
       if (err) throw err;
    
@@ -45,6 +50,8 @@ export const register = async (req, res) => {
   }
 };
 
+
+// Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -55,6 +62,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ msg: 'User does not exists' });
     }
 
+    // check if the tokens match
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Wrong password, try again' });
@@ -66,6 +74,8 @@ export const login = async (req, res) => {
         role: user.role
       }
     };
+
+        // remove user password from object
     const filteredUser = filterSensitiveFields(user, ['password']);
    
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
